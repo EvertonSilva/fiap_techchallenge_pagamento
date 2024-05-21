@@ -16,6 +16,9 @@ import org.springframework.stereotype.Component;
 public class PagamentoAdapterModel implements IAdapterModel<Pagamento, PagamentoModel> {
     @Override
     public Pagamento toDomain(PagamentoModel pagamentoModel) {
+        if (pagamentoModel == null)
+            return null;
+
         return Pagamento.builder()
             .id(new Id(pagamentoModel.getId()))
             .codigoPedido(new Codigo(pagamentoModel.getCodigoPedido()))
@@ -29,14 +32,23 @@ public class PagamentoAdapterModel implements IAdapterModel<Pagamento, Pagamento
 
     @Override
     public PagamentoModel toModel(Pagamento pagamento) {
-        return PagamentoModel.builder()
-            .id(pagamento.getId().getValor())
-            .codigoPedido(pagamento.getCodigoPedido().getValor())
-            .statusPagamento(pagamento.getStatus().toString())
-            .dataCriacao(pagamento.getData().getValor())
-            .dataExpiracaoPagamento(pagamento.getDataExpiracaoPagamento().getData())
-            .pixCopiaECola(pagamento.getPixCopiaECola().getValor())
-            .pixQRCode64(pagamento.getPixQRCode64().getValor())
-            .build();
+        if (pagamento == null)
+            return null;
+
+        var pagamentoModel = new PagamentoModel();
+
+        if (pagamento.getId() != null)
+            pagamentoModel.setId(pagamento.getId().getValor());
+
+        if (pagamento.getData() != null)
+            pagamentoModel.setDataCriacao(pagamento.getData().getValor());
+
+        pagamentoModel.setCodigoPedido(pagamento.getCodigoPedido().getValor());
+        pagamentoModel.setDataExpiracaoPagamento(pagamento.getDataExpiracaoPagamento().getData());
+        pagamentoModel.setPixCopiaECola(pagamento.getPixCopiaECola().getValor());
+        pagamentoModel.setPixQRCode64(pagamento.getPixQRCode64().getValor());
+        pagamentoModel.setStatusPagamento(pagamento.getStatus().toString());
+
+        return pagamentoModel;
     }
 }

@@ -49,10 +49,17 @@
 
 	<build>
 		<plugins>
+			<!-- JaCoCo Plugin para Relatório de Test Coverage + Integração SonarQube -->
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.8.12</version>
+				<configuration>
+                    <excludes>
+                        <exclude>**/br/com/edu/fiap/techchallengelanchonete/integration/gatewaypagamento/mercadopago/*</exclude>
+						<exclude>**/br/com/edu/fiap/techchallengelanchonete/TechChallengeLanchoneteApplication.java</exclude>
+                    </excludes>
+                </configuration>
 				<executions>
 					<execution>
 						<id>jacoco-initialize</id>
@@ -85,9 +92,41 @@
                                     </limits>
                                 </rule>
                             </rules>
-                        </configuration>
+						</configuration>
                     </execution>
 				</executions>
+			</plugin>
+
+			<!-- Surefire Plugin para Testes Unitários -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.2.5</version>
+				<configuration>
+					<includes>
+						<include>**/*Test.java</include>
+					</includes>
+				</configuration>
+			</plugin>
+
+			<!-- Failsafe Plugin para Testes de Integração -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>3.2.5</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<includes>
+						<include>**/*IT.java</include>
+					</includes>
+				</configuration>
 			</plugin>
         </plugins>
     </build>
