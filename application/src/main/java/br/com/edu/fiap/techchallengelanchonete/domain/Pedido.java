@@ -19,6 +19,7 @@ public class Pedido {
     private List<Produto> produtos;
 
     public Pedido() {
+        this.codigo = new Codigo("");
         this.produtos = new ArrayList<>();
     }
 
