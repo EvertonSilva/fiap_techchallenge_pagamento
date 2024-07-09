@@ -18,8 +18,8 @@ public class StartupConfiguration {
     @Value( "${mercadopago.token}" )
     private String TOKEN_MERCADO_PAGO;
 
-    public StartupConfiguration(IPedidoCriadoConsumer pedidoCriadoConsumer, PagamentoUseCase pagamentoUseCase) throws IOException {
-        pedidoCriadoConsumer.consome("NOVOS_PEDIDOS", pagamentoUseCase::registraPagamento);
+    public StartupConfiguration(IPedidoCriadoConsumer pedidoCriadoConsumer, PagamentoUseCase pagamentoUseCase) {
+        pedidoCriadoConsumer.consome(pagamentoUseCase::registraPagamento);
     }
 
     @PostConstruct
