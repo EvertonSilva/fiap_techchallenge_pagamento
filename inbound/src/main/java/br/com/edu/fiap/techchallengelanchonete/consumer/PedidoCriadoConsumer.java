@@ -1,60 +1,61 @@
 package br.com.edu.fiap.techchallengelanchonete.consumer;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.function.Consumer;
 
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.ChannelCallback;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rabbitmq.client.DeliverCallback;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.impl.AMQImpl.Basic.GetOk;
 
 import br.com.edu.fiap.techchallengelanchonete.adapter.PedidoAdapter;
-import br.com.edu.fiap.techchallengelanchonete.domain.OrdemCompra;
+import br.com.edu.fiap.techchallengelanchonete.configuration.messaging.Mensageria;
 import br.com.edu.fiap.techchallengelanchonete.dto.PedidoDTO;
 import br.com.edu.fiap.techchallengelanchonete.exception.ApplicationException;
 import br.com.edu.fiap.techchallengelanchonete.infrastructure.IPedidoCriadoConsumer;
-import br.com.edu.fiap.techchallengelanchonete.messaging.RabbitMqActor;
-import br.com.edu.fiap.techchallengelanchonete.messaging.RabbitMqConnFactory;
+import br.com.edu.fiap.techchallengelanchonete.usecase.PagamentoUseCase;
 
 @Component
-public class PedidoCriadoConsumer extends RabbitMqActor implements IPedidoCriadoConsumer {
+public class PedidoCriadoConsumer implements IPedidoCriadoConsumer {
 
+    private PagamentoUseCase pagamentoUseCase;
     private String nomeFilaPedidoCriado;
     private PedidoAdapter pedidoAdapter;
+    private RabbitTemplate rabbitTemplate;
 
-    public PedidoCriadoConsumer(RabbitMqConnFactory rabbitMqConnFactory, PedidoAdapter pedidoAdapter,
-    @Value("${messaging.fila-pedido-criado}") String nomeFilaPedidoCriado) throws IOException {
-        super(rabbitMqConnFactory);
+    public PedidoCriadoConsumer(PagamentoUseCase pagamentoUseCase, PedidoAdapter pedidoAdapter,
+        @Value("${messaging.fila-pedido-criado}") String nomeFilaPedidoCriado, RabbitTemplate rabbitTemplate) {
+        this.pagamentoUseCase = pagamentoUseCase;
         this.pedidoAdapter = pedidoAdapter;
         this.nomeFilaPedidoCriado = nomeFilaPedidoCriado;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @Override
-    public void consome(Consumer<OrdemCompra> consumidorMensagem) {
-        DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-            try {
-                String mensagem = new String(delivery.getBody(), StandardCharsets.UTF_8);
-    
-                var objectMapper = new ObjectMapper();
-                var pedidoDTO = objectMapper.readValue(mensagem, PedidoDTO.class);
-                var ordemCompra = pedidoAdapter.toDomain(pedidoDTO);
-    
-                consumidorMensagem.accept(ordemCompra);
-                channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
-            }
-            catch (Exception ex) {
-                channel.basicNack(delivery.getEnvelope().getDeliveryTag(), false, true);
-                throw new ApplicationException("Erro ao processar mensagem da fila " + nomeFilaPedidoCriado, ex);
-            }
-        };
-
+    @RabbitListener(queues = "FILA_PEDIDO_CRIADO_MICROSERVICO_PAGAMENTO", ackMode = "MANUAL")
+    public void consome(String mensagem, @Header(AmqpHeaders.DELIVERY_TAG) long tag) {
         try {
-            channel.basicConsume(nomeFilaPedidoCriado, false, deliverCallback, consumerTag -> {});
+
+            var objectMapper = new ObjectMapper();
+            var pedidoDTO = objectMapper.readValue(mensagem, PedidoDTO.class);
+            var ordemCompra = pedidoAdapter.toDomain(pedidoDTO);
+
+            this.pagamentoUseCase.registraPagamento(ordemCompra);
         }
         catch (Exception ex) {
-            throw new ApplicationException("Erro ao consumir a fila " + nomeFilaPedidoCriado, ex);
+            this.rabbitTemplate.execute((channel) -> {
+                channel.basicReject(tag, false);
+                return null;
+            });
+
+            throw new ApplicationException("Erro ao processar mensagem da fila " + nomeFilaPedidoCriado, ex);
         }
     }
 

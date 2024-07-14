@@ -52,11 +52,10 @@
             <artifactId>liquibase-core</artifactId>
             <version>4.27.0</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.rabbitmq/amqp-client -->
         <dependency>
-            <groupId>com.rabbitmq</groupId>
-            <artifactId>amqp-client</artifactId>
-            <version>5.21.0</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+            <version>3.2.5</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
         <dependency>
