@@ -13,14 +13,11 @@ import br.com.edu.fiap.techchallengelanchonete.messaging.RabbitMqConnFactory;
 @Configuration
 public class MessagingConfiguration extends RabbitMqActor {
 
-    protected MessagingConfiguration(RabbitMqConnFactory rabbitMqConnFactory, 
-        @Value("${messaging.fila-pedido-criado}") String filaPedidoCriado, 
-        @Value("${messaging.lancador-pedido-criado}") String lancadorPedidoCriado,
+    protected MessagingConfiguration(RabbitMqConnFactory rabbitMqConnFactory,
         @Value("${messaging.fila-pagamento-processado}") String filaPagamentoProcessado, 
         @Value("{$messaging.lancador-pagamento-processado}") String lancadorPagamentoProcessado) throws IOException {
             
         super(rabbitMqConnFactory);
-        super.configuraFila(filaPedidoCriado, lancadorPedidoCriado, BuiltinExchangeType.FANOUT);
         super.configuraFila(filaPagamentoProcessado, lancadorPagamentoProcessado, BuiltinExchangeType.DIRECT);
     }
 
