@@ -14,21 +14,6 @@ import org.springframework.context.annotation.Configuration;
 public class MessagingConfiguration {
 
     @Bean
-    public Exchange lancadorPedidoCriado(@Value("${messaging.lancador-pedido-criado}") String lancadorPedidoCriado) {
-        return new FanoutExchange(lancadorPedidoCriado);
-    }
-
-    @Bean
-    public Queue filaPedidoCriado(@Value("${messaging.fila-pedido-criado}") String filaPedidoCriado) {
-        return new Queue(filaPedidoCriado);
-    }
-
-    @Bean
-    public Binding bindingPedidoCriado(Queue filaPedidoCriado, FanoutExchange lancadorPedidoCriado) {
-        return BindingBuilder.bind(filaPedidoCriado).to(lancadorPedidoCriado);
-    }
-
-    @Bean
     public Exchange lancadorPagamentoProcessado(@Value("{$messaging.lancador-pagamento-processado}") String lancadorPagamentoProcessado) {
         return new DirectExchange(lancadorPagamentoProcessado);
     }
