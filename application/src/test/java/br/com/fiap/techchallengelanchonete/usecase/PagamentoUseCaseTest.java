@@ -92,7 +92,7 @@ class PagamentoUseCaseTest {
             when(pagamentoPersistence.consultaPagamentoPorCodigoPedido(any(Codigo.class)))
                 .thenReturn(Optional.of(new Pagamento()));
             doThrow(new IOException())
-                .when(ordemCompraProcessadaPublisher).publica(any(Pagamento.class), any(String.class));
+                .when(ordemCompraProcessadaPublisher).publica(any(Pagamento.class));
             
             var applicationException = assertThrows(ApplicationException.class, () -> {
                 var pagamento = pagamentoUseCase.confirmacaoPagamento(new Codigo(UUID.randomUUID().toString()), StatusPagamento.APROVADO);
@@ -110,7 +110,7 @@ class PagamentoUseCaseTest {
             when(pagamentoPersistence.consultaPagamentoPorCodigoPedido(any(Codigo.class)))
                 .thenReturn(Optional.of(new Pagamento()));
             doNothing()
-                .when(ordemCompraProcessadaPublisher).publica(any(Pagamento.class), any(String.class));
+                .when(ordemCompraProcessadaPublisher).publica(any(Pagamento.class));
 
             var pagamento = pagamentoUseCase.confirmacaoPagamento(new Codigo(UUID.randomUUID().toString()), StatusPagamento.APROVADO);
 
