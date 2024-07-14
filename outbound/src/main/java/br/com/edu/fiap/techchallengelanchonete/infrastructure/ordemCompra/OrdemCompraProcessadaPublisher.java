@@ -21,7 +21,7 @@ public class OrdemCompraProcessadaPublisher extends RabbitMqActor implements IOr
     private PagamentoAdapterDTO pagamentoAdapterDTO;
 
     public OrdemCompraProcessadaPublisher(RabbitMqConnFactory rabbitMqConnFactory, PagamentoAdapterDTO pagamentoAdapterDTO,
-        @Value("${messaging.fila-pedido-criado}") String nomeFilaPagamentoProcessado) throws IOException {
+        @Value("${messaging.fila-pagamento-processado}") String nomeFilaPagamentoProcessado) throws IOException {
         super(rabbitMqConnFactory);
         this.pagamentoAdapterDTO = pagamentoAdapterDTO;
         this.nomeFilaPagamentoProcessado = nomeFilaPagamentoProcessado;
