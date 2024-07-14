@@ -19,7 +19,7 @@ public class OrdemCompraProcessadaPublisher implements IOrdemCompraProcessadaPub
     private PagamentoAdapterDTO pagamentoAdapterDTO;
 
     public OrdemCompraProcessadaPublisher(RabbitTemplate rabbitTemplate, PagamentoAdapterDTO pagamentoAdapterDTO,
-        @Value("${messaging.fila-pedido-criado}") String nomeFilaPagamentoProcessado) {
+        @Value("${messaging.fila-pagamento-processado}") String nomeFilaPagamentoProcessado) {
         this.rabbitTemplate = rabbitTemplate;
         this.pagamentoAdapterDTO = pagamentoAdapterDTO;
         this.nomeFilaPagamentoProcessado = nomeFilaPagamentoProcessado;
